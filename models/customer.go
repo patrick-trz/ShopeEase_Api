@@ -1,7 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 type Customer struct {
-	ID    uint   `gorm:"primaryKey" json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	gorm.Model
+	Name     string `json:"name"`
+	Email    string `json:"email" gorm:"unique"`
+	Password string `json:"password"`
 }

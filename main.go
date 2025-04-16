@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
+
 	config.Connect()
 
-	// Миграция
 	config.DB.AutoMigrate(
 		&models.Product{},
 		&models.Customer{},
@@ -19,6 +19,9 @@ func main() {
 	)
 
 	r := gin.Default()
+
 	routes.SetupRoutes(r)
-	r.Run(":8080")
+	routes.AuthRoutes(r)
+
+	r.Run(":8080") // http://localhost:8080
 }

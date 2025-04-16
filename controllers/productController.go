@@ -7,12 +7,10 @@ import (
 	"net/http"
 )
 
-// GetProducts handles the GET request to fetch all products
-// GetProduct handles the GET request to fetch a product by ID
-func GetProducts(c *gin.Context) {
-	id := c.Param("id") // Get the product ID from the URL path
+func GetProduct(c *gin.Context) {
+	id := c.Param("id")
 	var product models.Product
-	// Make sure to use the correct syntax to pass the `id` value
+
 	if err := config.DB.First(&product, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 		return
@@ -20,8 +18,18 @@ func GetProducts(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-// CreateProduct handles the POST request to create a new product
-func CreateProduct(c *gin.Context) {
+func GetProducts(c *gin.Context) {
+	var products []models.Product
+
+	if err := config.DB.Find(&products).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve products"})
+		return
+	}
+
+	c.JSON(http.StatusOK, products)
+}
+
+func CreateProducts(c *gin.Context) {
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -34,7 +42,6 @@ func CreateProduct(c *gin.Context) {
 	c.JSON(http.StatusCreated, product)
 }
 
-// UpdateProduct handles the PUT request to update a product
 func UpdateProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
@@ -43,13 +50,11 @@ func UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	// Bind new data to product object
 	if err := c.ShouldBindJSON(&product); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Update the product
 	if err := config.DB.Save(&product).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -57,7 +62,6 @@ func UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, product)
 }
 
-// DeleteProduct handles the DELETE request to delete a product
 func DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
 	if err := config.DB.Delete(&models.Product{}, id).Error; err != nil {
@@ -65,4 +69,9 @@ func DeleteProduct(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully"})
+}
+
+func Dashboard(c *gin.Context) {
+	user, _ := c.Get("username") // Get username from the context
+	c.JSON(http.StatusOK, gin.H{"message": "Welcome, " + user.(string)})
 }
